@@ -22,17 +22,17 @@ const UsersController = {
     users.findOne({ email }, (err, user) => {
       if (user) {
         res.status(400).json({ error: 'Already exist' });
-        return;
+      } else {
+        const hashedPswd = sha1(password);
+        users.insertOne(
+          {
+            email,
+            password: hashedPswd,
+          },
+        ).then((result) => {
+          res.status(201).json({ id: result.insertedId, email });
+        }).catch((err) => console.log(err));
       }
-      const hashedPswd = sha1(password);
-      users.insertOne(
-        {
-          email,
-          password: hashedPswd,
-        },
-      ).then((result) => {
-        res.status(201).json({ id: result.insertedId, email });
-      }).catch((err) => console.log(err));
     });
   },
 
