@@ -1,7 +1,7 @@
-const dbClient = require('../utils/db.js')
 const sha1 = require('sha1');
 const uuidv4 = require('uuid');
-const redisClient = require('../utils/redis.js');
+const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
 const AuthController = {
   getConnect: (req, res) => {
@@ -24,7 +24,7 @@ const AuthController = {
         const token = uuidv4();
         const key = `auth_${token}`;
         await redisClient.set(key, user._id.toString(), 86400);
-        res.status(200).json({ token: token });
+        res.status(200).json({ token });
       } else {
         res.status(401).json({ error: 'Unauthorized' });
       }
@@ -39,9 +39,9 @@ const AuthController = {
       await redisClient.del(key);
       res.status(204).json({});
     } else {
-      res.status(401).json({error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
     }
-  }
+  },
 };
 
-module.exports = AuthController; 
+module.exports = AuthController;
