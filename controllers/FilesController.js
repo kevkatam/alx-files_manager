@@ -21,8 +21,7 @@ const FilesController = {
     } else {
       return null;
     }
-  }
-},
+  },
 
   postUpload: async (req, res) {
     const user = await FilesController.retrieve(req);
@@ -63,7 +62,7 @@ const FilesController = {
         type,
         parentId: parentId || 0,
         isPublic,
-       },
+      },
       ).then((result) => res.status(201).json({
         id: result.insertedId,
         userId: user._id,
@@ -97,7 +96,7 @@ const FilesController = {
           isPublic,
           parentId: parentId || 0,
           localPath: fileName,
-         },
+        },
        ).then((result) => {
         res.status(201).json(
           {
@@ -109,17 +108,11 @@ const FilesController = {
             parentId: parentId || 0,
           },
         );
-        if (type === 'image') {
-          fileQueue.add(
-            {
-              userId: user._id,
-              fileId: result.insertedId,
-            },
-          );
-        }
-      }).catch((err) {
-         console.log(err));
+        }).catch((error) => console.log(err));
       }
+      return null;
     }
-    return null;
   }
+}
+   
+
