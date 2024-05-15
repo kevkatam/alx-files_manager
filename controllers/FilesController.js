@@ -1,7 +1,8 @@
+const fs = require('fs').promises;
+const { ObjectID } = require('mongodb');
+const { v4: uuidv4 } = require('uuid');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
-const { ObjectID } = require)'mongodb');
-
 
 const FilesController = {
   retrieve: async (req) => {
@@ -10,20 +11,18 @@ const FilesController = {
     const userId = await redisClient.get(key);
 
     if (userId) {
-      const users =dbClient.db.collection('users');
+      const users = dbClient.db.collection('users');
       const objId = new ObjectID(userId);
       const user = await users.findOne({ _id: objId });
       if (!user) {
         return null;
-      } else {
-        return user;
       }
-    } else {
-      return null;
+      return user;
     }
+    return null;
   },
 
-  postUpload: async (req, res) {
+  postUpload: async (req, res) => {
     const user = await FilesController.retrieve(req);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -56,20 +55,20 @@ const FilesController = {
     }
     if (type === 'folder') {
       files.insertOne(
-      {
-        userId: user._id,
-        name,
-        type,
-        parentId: parentId || 0,
-        isPublic,
-      },
+        {
+          userId: user._id,
+          name,
+          type,
+          parentId: parentId || 0,
+          isPublic,
+        },
       ).then((result) => res.status(201).json({
         id: result.insertedId,
         userId: user._id,
         name,
         type,
         isPublic,
-        parentId: parentId | 0,
+        parentId: parentId || 0,
       })).catch((err) => {
         console.log(err);
       });
@@ -82,6 +81,7 @@ const FilesController = {
         try {
           await fs.mkdir(folderPath);
         } catch (err) {
+          console.log(err);
         }
         await fs.writeFile(fileName, buf, 'utf-8');
       } catch (err) {
@@ -97,7 +97,7 @@ const FilesController = {
           parentId: parentId || 0,
           localPath: fileName,
         },
-       ).then((result) => {
+      ).then((result) => {
         res.status(201).json(
           {
             id: result.insertedId,
@@ -108,11 +108,8 @@ const FilesController = {
             parentId: parentId || 0,
           },
         );
-        }).catch((error) => console.log(err));
-      }
-      return null;
+      }).catch((err) => console.log(err));
     }
-  }
-}
-   
-
+    return null;
+  },
+};
