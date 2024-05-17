@@ -2,7 +2,7 @@ const redisClient = require('../utils/redis');
 const dbClient = require('../utils/db');
 
 const AppController = {
-  getStatus: (req, res) => {
+  getStatus: async (req, res) => {
     const sts = {};
     if (redisClient.isAlive()) {
       sts.redis = true;
